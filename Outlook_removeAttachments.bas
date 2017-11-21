@@ -4,9 +4,17 @@ Sub removeAttachments()
     Dim myOlApp As New Outlook.Application
     Dim myOlExp As Outlook.Explorer
     Dim myOlSel As Outlook.Selection
+    Dim ShellApp As Object
     Dim attchmentList As String
 
     'work on selected items
+    '1. folder picker
+    openAt = "C:\Users\fquarre\Documents\Work" 'where to start the folderPicker
+    Set ShellApp = CreateObject("Shell.Application").BrowseForFolder(0, "Please choose a folder", 0, openAt)
+    BrowseForFolder = ShellApp.self.Path
+    Set ShellApp = Nothing
+
+    '2. outlook elements
     Set myOlExp = myOlApp.ActiveExplorer
     Set myOlSel = myOlExp.Selection
 
@@ -16,14 +24,18 @@ Sub removeAttachments()
         
         'if there are some...
         If myAttachments.Count > 0 Then
-            attchmentList = "----------------------------------------------" & vbCrLf & "Removed Attachments:" & vbCrLf 'add remark to message text
+            attchmentList = "<p>----------------------------------------------<br>Removed Attachments:<br>" 'add remark to message text
             While myAttachments.Count > 0
-				attchmentList = attchmentList & "File: " & myAttachments(1).DisplayName & vbCrLf  'add name and destination to message text
+                strFile = myAttachments(1).FileName
+                strFile = BrowseForFolder & "\" & strFile
+                myAttachments(1).SaveAsFile strFile
+                attchmentList = attchmentList & "<a href='file://" & strFile & "'>" & strFile & "</a><br>" 'add name and destination to message text // if not HTML strDeletedFiles = strDeletedFiles & vbCrLf & "<file://" & strFile & ">"
                 myAttachments(1).Delete
             Wend
-            attchmentList = attchmentList & "----------------------------------------------" & vbCrLf
+            attchmentList = attchmentList & "----------------------------------------------</p>"
 
-            myItem.Body = attchmentList & myItem.Body
+            myItem.HTMLBody = attchmentList & myItem.HTMLBody
+
             myItem.Save 'save item without attachments
         End If
     Next
