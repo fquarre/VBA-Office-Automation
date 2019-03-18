@@ -38,6 +38,7 @@ Sub listAttachments()
     Set myOlExp = Nothing
     Set myOlSel = Nothing
 End Sub
+                                
 Sub saveAttachments()
     'Declaration
     Dim myItems, myItem, myAttachments, myAttachment As Object
@@ -49,7 +50,8 @@ Sub saveAttachments()
 
     'work on selected items
     '1. folder picker
-    openAt = "C:\Users\fquarre\Documents\Work" 'where to start the folderPicker
+    Set oShell = CreateObject("WScript.Shell")
+    openAt = oShell.ExpandEnvironmentStrings("%HOMEDRIVE%") & oShell.ExpandEnvironmentStrings("%HOMEPATH%") & "\Documents\Work" 'where to start the folderPicker
     Set ShellApp = CreateObject("Shell.Application").BrowseForFolder(0, "Please choose a folder", 0, openAt)
     If ShellApp Is Nothing Then
         GoTo ExitSub
